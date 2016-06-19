@@ -19,7 +19,7 @@ Some additional details:
 
     In the C blocks: 'ir_conv' nb of filter is given as 2048, however input size is 2144.
     This causes inconsistencies in the merge-add mode, therefore the 'ir_conv' filter size
-    is reduced to 2144 to match input size.
+    is increased to 2144 to match input size.
 
     Currently trying to find a proper solution with original nb of filters.
 
