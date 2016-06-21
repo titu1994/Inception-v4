@@ -166,4 +166,6 @@ if __name__ == "__main__":
     inception_v4 = create_inception_v4(ip)
     model = Model(input=ip, output=inception_v4)
 
-    plot(model, to_file="Inception-v4.png", show_shapes=True)
+    model.summary()
+
+    #plot(model, to_file="Inception-v4.png", show_shapes=True)
