@@ -54,7 +54,7 @@ def inception_resnet_v2_A(input, scale_residual=False):
     ir_merge = merge([ir1, ir2, ir3], concat_axis=1, mode='concat')
 
     ir_conv = Convolution2D(384, 1, 1, activation='linear', border_mode='same')(ir_merge)
-    if scale_residual: ir_conv = Lambda(lambda x: x * np.random.uniform(0.1, 0.3))(ir_conv)
+    if scale_residual: ir_conv = Lambda(lambda x: x * 0.1)(ir_conv)
 
     out = merge([init, ir_conv], mode='sum')
     out = Activation("relu")(out)
@@ -73,7 +73,7 @@ def inception_resnet_v2_B(input, scale_residual=False):
     ir_merge = merge([ir1, ir2], mode='concat', concat_axis=1)
 
     ir_conv = Convolution2D(1152, 1, 1, activation='linear', border_mode='same')(ir_merge)
-    if scale_residual: ir_conv = Lambda(lambda x: x * np.random.uniform(0.1, 0.3))(ir_conv)
+    if scale_residual: ir_conv = Lambda(lambda x: x * 0.1)(ir_conv)
 
     out = merge([init, ir_conv], mode='sum')
     out = Activation("relu")(out)
@@ -92,7 +92,7 @@ def inception_resnet_v2_C(input, scale_residual=False):
     ir_merge = merge([ir1, ir2], mode='concat', concat_axis=1)
 
     ir_conv = Convolution2D(2144, 1, 1, activation='linear', border_mode='same')(ir_merge)
-    if scale_residual: ir_conv = Lambda(lambda x: x * np.random.uniform(0.1, 0.3))(ir_conv)
+    if scale_residual: ir_conv = Lambda(lambda x: x * 0.1)(ir_conv)
 
     out = merge([init, ir_conv], mode='sum')
     out = Activation("relu")(out)
