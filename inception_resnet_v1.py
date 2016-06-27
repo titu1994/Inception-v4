@@ -25,7 +25,7 @@ def inception_resnet_stem(input):
     b = BatchNormalization(axis=1)(c)
     return b
 
-def inception_resnet_A(input, scale_residual=False):
+def inception_resnet_A(input, scale_residual=True):
     # Input is relu activation
     init = input
 
@@ -48,7 +48,7 @@ def inception_resnet_A(input, scale_residual=False):
     out = Activation("relu")(out)
     return out
 
-def inception_resnet_B(input, scale_residual=False):
+def inception_resnet_B(input, scale_residual=True):
     # Input is relu activation
     init = input
 
@@ -68,7 +68,7 @@ def inception_resnet_B(input, scale_residual=False):
     out = Activation("relu")(out)
     return out
 
-def inception_resnet_C(input, scale_residual=False):
+def inception_resnet_C(input, scale_residual=True):
     # Input is relu activation
     init = input
 
@@ -179,4 +179,4 @@ if __name__ == "__main__":
     model = Model(ip, inception_resnet_v1)
     model.summary()
 
-    #plot(model, to_file="Inception ResNet-v1.png", show_shapes=True)
+    plot(model, to_file="Inception ResNet-v1.png", show_shapes=True)

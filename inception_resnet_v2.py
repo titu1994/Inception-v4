@@ -57,7 +57,7 @@ def inception_resnet_stem(input):
     m3 = Activation('relu')(m3)
     return m3
 
-def inception_resnet_v2_A(input, scale_residual=False):
+def inception_resnet_v2_A(input, scale_residual=True):
     # Input is relu activation
     init = input
 
@@ -80,7 +80,7 @@ def inception_resnet_v2_A(input, scale_residual=False):
     out = Activation("relu")(out)
     return out
 
-def inception_resnet_v2_B(input, scale_residual=False):
+def inception_resnet_v2_B(input, scale_residual=True):
     # Input is relu activation
     init = input
 
@@ -100,7 +100,7 @@ def inception_resnet_v2_B(input, scale_residual=False):
     out = Activation("relu")(out)
     return out
 
-def inception_resnet_v2_C(input, scale_residual=False):
+def inception_resnet_v2_C(input, scale_residual=True):
     # Input is relu activation
     init = input
 
