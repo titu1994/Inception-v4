@@ -1,5 +1,6 @@
 from keras.layers import merge, Dropout, Dense, Flatten
 from keras.layers.convolutional import MaxPooling2D, Convolution2D, AveragePooling2D
+from keras.layers.normalization import BatchNormalization
 
 """
 Implementation of Inception Network v4 [Inception Network v4 Paper](http://arxiv.org/pdf/1602.07261v1.pdf) in Keras.
@@ -30,6 +31,7 @@ def inception_stem(input): # Input (299,299,3)
     p2 = Convolution2D(192, 3, 3, activation='relu', subsample=(2,2))(m2)
 
     m3 = merge([p1, p2], mode='concat', concat_axis=1)
+    m3 = BatchNormalization(axis=1)(m3)
     return m3
 
 
@@ -47,6 +49,7 @@ def inception_A(input):
     a4 = Convolution2D(96, 3, 3, activation='relu', border_mode='same')(a4)
 
     m = merge([a1, a2, a3, a4], mode='concat', concat_axis=1)
+    m = BatchNormalization(axis=1)(m)
     return m
 
 def inception_B(input):
@@ -66,6 +69,7 @@ def inception_B(input):
     b4 = Convolution2D(256, 7, 1, activation='relu', border_mode='same')(b4)
 
     m = merge([b1, b2, b3, b4], mode='concat', concat_axis=1)
+    m = BatchNormalization(axis=1)(m)
     return m
 
 def inception_C(input):
@@ -85,6 +89,7 @@ def inception_C(input):
     c4_2 = Convolution2D(256, 1, 3, activation='relu', border_mode='same')(c4)
 
     m = merge([c1, c2, c3_1, c3_2, c4_1, c4_2], mode='concat', concat_axis=1)
+    m = BatchNormalization(axis=1)(m)
     return m
 
 def reduction_A(input, k=192, l=224, m=256, n=384):
@@ -97,6 +102,7 @@ def reduction_A(input, k=192, l=224, m=256, n=384):
     r3 = Convolution2D(m, 3, 3, activation='relu', subsample=(2,2))(r3)
 
     m = merge([r1, r2, r3], mode='concat', concat_axis=1)
+    m = BatchNormalization(axis=1)(m)
     return m
 
 def reduction_B(input):
@@ -111,6 +117,7 @@ def reduction_B(input):
     r3 = Convolution2D(320, 3, 3, activation='relu', border_mode='valid', subsample=(2,2))(r3)
 
     m = merge([r1, r2, r3], mode='concat', concat_axis=1)
+    m = BatchNormalization(axis=1)(m)
     return m
 
 

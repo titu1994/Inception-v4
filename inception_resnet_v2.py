@@ -1,5 +1,6 @@
 from keras.layers import merge, Dropout, Dense, Lambda, Flatten, Activation
 from keras.layers.convolutional import MaxPooling2D, Convolution2D, AveragePooling2D
+from keras.layers.normalization import BatchNormalization
 import numpy as np
 
 """
@@ -28,15 +29,33 @@ Some additional details:
 """
 
 def inception_resnet_stem(input):
-    # Input Shape is 299 x 299 x 3 (tf) or 3 x 299 x 299 (th)
+    # Input Shape is 299 x 299 x 3 (th) or 3 x 299 x 299 (th)
     c = Convolution2D(32, 3, 3, activation='relu', subsample=(2, 2))(input)
     c = Convolution2D(32, 3, 3, activation='relu', )(c)
-    c = Convolution2D(64, 3, 3, activation='relu', )(c)
-    c = MaxPooling2D((3, 3), strides=(2, 2))(c)
-    c = Convolution2D(80, 1, 1, activation='relu', border_mode='same')(c)
-    c = Convolution2D(192, 3, 3, activation='relu')(c)
-    c = Convolution2D(384, 3, 3, activation='relu', subsample=(2, 2), border_mode='same')(c)
-    return c
+    c = Convolution2D(64, 3, 3, activation='relu', border_mode='same')(c)
+
+    c1 = MaxPooling2D((3, 3), strides=(2, 2))(c)
+    c2 = Convolution2D(96, 3, 3, activation='relu', subsample=(2, 2))(c)
+
+    m = merge([c1, c2], mode='concat', concat_axis=1)
+
+    c1 = Convolution2D(64, 1, 1, activation='relu', border_mode='same')(m)
+    c1 = Convolution2D(96, 3, 3, activation='relu', )(c1)
+
+    c2 = Convolution2D(64, 1, 1, activation='relu', border_mode='same')(m)
+    c2 = Convolution2D(64, 7, 1, activation='relu', border_mode='same')(c2)
+    c2 = Convolution2D(64, 1, 7, activation='relu', border_mode='same')(c2)
+    c2 = Convolution2D(96, 3, 3, activation='relu', border_mode='valid')(c2)
+
+    m2 = merge([c1, c2], mode='concat', concat_axis=1)
+
+    p1 = MaxPooling2D((3, 3), strides=(2, 2), )(m2)
+    p2 = Convolution2D(192, 3, 3, activation='relu', subsample=(2, 2))(m2)
+
+    m3 = merge([p1, p2], mode='concat', concat_axis=1)
+    m3 = BatchNormalization(axis=1)(m3)
+    m3 = Activation('relu')(m3)
+    return m3
 
 def inception_resnet_v2_A(input, scale_residual=False):
     # Input is relu activation
@@ -57,6 +76,7 @@ def inception_resnet_v2_A(input, scale_residual=False):
     if scale_residual: ir_conv = Lambda(lambda x: x * 0.1)(ir_conv)
 
     out = merge([init, ir_conv], mode='sum')
+    out = BatchNormalization(axis=1)(out)
     out = Activation("relu")(out)
     return out
 
@@ -76,6 +96,7 @@ def inception_resnet_v2_B(input, scale_residual=False):
     if scale_residual: ir_conv = Lambda(lambda x: x * 0.1)(ir_conv)
 
     out = merge([init, ir_conv], mode='sum')
+    out = BatchNormalization(axis=1)(out)
     out = Activation("relu")(out)
     return out
 
@@ -95,6 +116,7 @@ def inception_resnet_v2_C(input, scale_residual=False):
     if scale_residual: ir_conv = Lambda(lambda x: x * 0.1)(ir_conv)
 
     out = merge([init, ir_conv], mode='sum')
+    out = BatchNormalization(axis=1)(out)
     out = Activation("relu")(out)
     return out
 
@@ -109,6 +131,8 @@ def reduction_A(input, k=192, l=224, m=256, n=384):
     r3 = Convolution2D(m, 3, 3, activation='relu', subsample=(2,2))(r3)
 
     m = merge([r1, r2, r3], mode='concat', concat_axis=1)
+    m = BatchNormalization(axis=1)(m)
+    m = Activation('relu')(m)
     return m
 
 
@@ -126,9 +150,11 @@ def reduction_resnet_v2_B(input):
     r4 = Convolution2D(320, 3, 3, activation='relu', subsample=(2, 2))(r4)
 
     m = merge([r1, r2, r3, r4], concat_axis=1, mode='concat')
+    m = BatchNormalization(axis=1)(m)
+    m = Activation('relu')(m)
     return m
 
-def create_inception_resnet_v2(input, nb_output=1000, scale=False):
+def create_inception_resnet_v2(input, nb_output=1000, scale=True):
     # Input Shape is 299 x 299 x 3 (tf) or 3 x 299 x 299 (th)
     x = inception_resnet_stem(input)
 
@@ -184,5 +210,6 @@ if __name__ == "__main__":
 
     inception_resnet_v2 = create_inception_resnet_v2(ip, scale=False)
     model = Model(ip, inception_resnet_v2)
+    model.summary()
 
     plot(model, to_file="Inception ResNet-v2.png", show_shapes=True)
