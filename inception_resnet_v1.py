@@ -23,6 +23,7 @@ def inception_resnet_stem(input):
     c = Convolution2D(192, 3, 3, activation='relu')(c)
     c = Convolution2D(256, 3, 3, activation='relu', subsample=(2,2), border_mode='same')(c)
     b = BatchNormalization(axis=1)(c)
+    b = Activation('relu')(b)
     return b
 
 def inception_resnet_A(input, scale_residual=True):
@@ -158,7 +159,7 @@ def create_inception_resnet_v1(input, nb_output=1000, scale=True):
     x = inception_resnet_C(x, scale_residual=scale)
 
     # Average Pooling
-    x = AveragePooling2D((7,7))(x)
+    x = AveragePooling2D((8,8))(x)
 
     # Dropout
     x = Dropout(0.8)(x)
@@ -177,6 +178,6 @@ if __name__ == "__main__":
 
     inception_resnet_v1 = create_inception_resnet_v1(ip, scale=False)
     model = Model(ip, inception_resnet_v1)
-    model.summary()
+    #.summary()
 
     plot(model, to_file="Inception ResNet-v1.png", show_shapes=True)

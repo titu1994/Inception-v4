@@ -1,4 +1,4 @@
-from keras.layers import merge, Dropout, Dense, Flatten
+from keras.layers import merge, Dropout, Dense, Flatten, Activation
 from keras.layers.convolutional import MaxPooling2D, Convolution2D, AveragePooling2D
 from keras.layers.normalization import BatchNormalization
 
@@ -32,6 +32,7 @@ def inception_stem(input): # Input (299,299,3)
 
     m3 = merge([p1, p2], mode='concat', concat_axis=1)
     m3 = BatchNormalization(axis=1)(m3)
+    m3 = Activation('relu')(m3)
     return m3
 
 
@@ -50,6 +51,7 @@ def inception_A(input):
 
     m = merge([a1, a2, a3, a4], mode='concat', concat_axis=1)
     m = BatchNormalization(axis=1)(m)
+    m = Activation('relu')(m)
     return m
 
 def inception_B(input):
@@ -70,6 +72,7 @@ def inception_B(input):
 
     m = merge([b1, b2, b3, b4], mode='concat', concat_axis=1)
     m = BatchNormalization(axis=1)(m)
+    m = Activation('relu')(m)
     return m
 
 def inception_C(input):
@@ -90,6 +93,7 @@ def inception_C(input):
 
     m = merge([c1, c2, c3_1, c3_2, c4_1, c4_2], mode='concat', concat_axis=1)
     m = BatchNormalization(axis=1)(m)
+    m = Activation('relu')(m)
     return m
 
 def reduction_A(input, k=192, l=224, m=256, n=384):
@@ -103,6 +107,7 @@ def reduction_A(input, k=192, l=224, m=256, n=384):
 
     m = merge([r1, r2, r3], mode='concat', concat_axis=1)
     m = BatchNormalization(axis=1)(m)
+    m = Activation('relu')(m)
     return m
 
 def reduction_B(input):
@@ -118,6 +123,7 @@ def reduction_B(input):
 
     m = merge([r1, r2, r3], mode='concat', concat_axis=1)
     m = BatchNormalization(axis=1)(m)
+    m = Activation('relu')(m)
     return m
 
 
@@ -152,7 +158,7 @@ def create_inception_v4(input, nb_output=1000):
     x = inception_C(x)
 
     # Average Pooling
-    x = AveragePooling2D((7,7))(x)
+    x = AveragePooling2D((8,8))(x)
 
     # Dropout
     x = Dropout(0.8)(x)
@@ -173,6 +179,6 @@ if __name__ == "__main__":
     inception_v4 = create_inception_v4(ip)
     model = Model(input=ip, output=inception_v4)
 
-    model.summary()
+    #model.summary()
 
-    #plot(model, to_file="Inception-v4.png", show_shapes=True)
+    plot(model, to_file="Inception-v4.png", show_shapes=True)
