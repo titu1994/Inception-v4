@@ -1,6 +1,7 @@
 # Inception v4 in Keras
-Implementations of the Inception-v4, Inception - Resnet-v1 and v2 Architectures in Keras using the Functional API. Paper on these architectures 
-is available at <a href="http://arxiv.org/pdf/1602.07261v1.pdf"><b>"Inception-v4, Inception-ResNet and the Impact of Residual Connections on Learning"</b></a>.
+Implementations of the Inception-v4, Inception - Resnet-v1 and v2 Architectures in Keras using the Functional API. The paper on these architectures is available at <a href="http://arxiv.org/pdf/1602.07261v1.pdf"><b>"Inception-v4, Inception-ResNet and the Impact of Residual Connections on Learning"</b></a>. 
+
+The models are plotted and shown in the architecture sub folder.
 
 ## Inception v4
 The python script '<b>inception_v4.py</b>' contains the methods necessary to create the Inception v4 network. 
