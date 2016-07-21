@@ -191,7 +191,7 @@ def create_inception_resnet_v2(input, nb_output=1000, scale=True):
     x = inception_resnet_v2_C(x, scale_residual=scale)
 
     # Average Pooling
-    x = AveragePooling2D((7,7))(x)
+    x = AveragePooling2D((8,8))(x)
 
     # Dropout
     x = Dropout(0.8)(x)
