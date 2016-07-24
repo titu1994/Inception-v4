@@ -8,11 +8,11 @@ The python script '<b>inception_v4.py</b>' contains the methods necessary to cre
 
 ## Inception ResNet v1
 The python script '<b>inception_resnet_v1.py</b>' contains the methods necessary to create the Inception ResNet v1 network. 
-It is to be noted that scaling of the residuals is turned <b>OFF</b> by default. This can be rectified by supplying 'scale=True' in the create method.
+It is to be noted that scaling of the residuals is turned <b>ON</b> by default. 
 
 ## Inception ResNet v2
 The python script '<b>inception_resnet_v2.py</b>' contains the methods necessary to create the Inception ResNet v2 network. 
-It is to be noted that scaling of the residuals is turned <b>OFF</b> by default. This can be rectified by supplying 'scale=True' in the create method.
+It is to be noted that scaling of the residuals is turned <b>ON</b> by default. 
 
 There are a few differences in the v2 network from the original paper:<br>
 <b>[1]</b> In the B blocks: 'ir_conv' nb of filters  is given as 1154 in the paper, however input size is 1152.<br>
