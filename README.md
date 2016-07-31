@@ -12,7 +12,7 @@ It is to be noted that scaling of the residuals is turned <b>OFF</b> by default.
 
 ## Inception ResNet v2
 The python script '<b>inception_resnet_v2.py</b>' contains the methods necessary to create the Inception ResNet v2 network. 
-It is to be noted that scaling of the residuals is turned <b>ON</b> by default. This can be rectified by supplying 'scale=True' in the create method.
+It is to be noted that scaling of the residuals is turned <b>ON</b> by default. 
 
 There are a few differences in the v2 network from the original paper:<br>
 <b>[1]</b> In the B blocks: 'ir_conv' nb of filters  is given as 1154 in the paper, however input size is 1152.<br>
@@ -22,16 +22,3 @@ There are a few differences in the v2 network from the original paper:<br>
 <b>[2]</b> In the C blocks: 'ir_conv' nb of filter is given as 2048 in the paper, however input size is 2144.<br>
     This causes inconsistencies in the merge-sum mode, therefore the 'ir_conv' filter size
     is increased to 2144 to match input size.
-
-# Architectures
-## Inception v4
-
-<img src="https://github.com/titu1994/Inception-v4/blob/master/Architectures/Inception-v4.png?raw=true" height=50% width=100%>
-
-## Inception ResNet v1
-
-<img src="https://github.com/titu1994/Inception-v4/blob/master/Architectures/Inception%20ResNet-v1.png?raw=true" height=50% width=100%>
-
-## Inception ResNet v2
-
-<img src="https://github.com/titu1994/Inception-v4/blob/master/Architectures/Inception%20ResNet-v2.png?raw=true" height=50% width=100%>
