@@ -208,7 +208,7 @@ if __name__ == "__main__":
 
     ip = Input(shape=(3, 299, 299))
 
-    inception_resnet_v2 = create_inception_resnet_v2(ip, scale=False)
+    inception_resnet_v2 = create_inception_resnet_v2(ip, scale=True)
     model = Model(ip, inception_resnet_v2)
     model.summary()
 
