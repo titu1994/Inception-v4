@@ -8,10 +8,10 @@ The python script '<b>inception_v4.py</b>' contains the methods necessary to cre
 
 Usage:
 ```
-import inception_v4 as iv4
+from inception_v4 import * 
 
 ip = Input(shape=(3, 299, 299))
-op = iv4.create_inception_v4(ip)
+op = create_inception_v4(ip)
 
 model = Model(ip, op)
 ```
@@ -22,10 +22,10 @@ It is to be noted that scaling of the residuals is turned <b>OFF</b> by default.
 
 Usage:
 ```
-import inception_resnet_v1 as irv1
+from inception_resnet_v1 import *
 
 ip = Input(shape=(3, 299, 299))
-op = irv1.create_inception_resnet_v1(ip, scale=True)
+op = create_inception_resnet_v1(ip, scale=True)
 
 model = Model(ip, op)
 ```
@@ -45,10 +45,10 @@ There are a few differences in the v2 network from the original paper:<br>
     
 Usage:
 ```
-import inception_resnet_v2 as irv2
+from inception_resnet_v2 import *
 
 ip = Input(shape=(3, 299, 299))
-op = irv2.create_inception_resnet_v2(ip, scale=True)
+op = create_inception_resnet_v2(ip, scale=True)
 
 model = Model(ip, op)
 ```
