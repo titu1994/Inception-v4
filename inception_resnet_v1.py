@@ -1,7 +1,8 @@
 from keras.layers import merge, Dropout, Dense, Lambda, Flatten, Activation
 from keras.layers.normalization import BatchNormalization
 from keras.layers.convolutional import MaxPooling2D, Convolution2D, AveragePooling2D
-import numpy as np
+
+from keras import backend as K
 
 """
 Implementation of Inception-Residual Network v1 [Inception Network v4 Paper](http://arxiv.org/pdf/1602.07261v1.pdf) in Keras.
@@ -12,6 +13,12 @@ Some additional details:
 
     Simply setting 'scale=True' in the create_inception_resnet_v1() method will add scaling.
 """
+
+if K.image_dim_ordering() == "th":
+    channel_axis = 1
+else:
+    channel_axis = -1
+
 
 def inception_resnet_stem(input):
     # Input Shape is 299 x 299 x 3 (tf) or 3 x 299 x 299 (th)
@@ -39,7 +46,7 @@ def inception_resnet_A(input, scale_residual=True):
     ir3 = Convolution2D(32, 3, 3, activation='relu', border_mode='same')(ir3)
     ir3 = Convolution2D(32, 3, 3, activation='relu', border_mode='same')(ir3)
 
-    ir_merge = merge([ir1, ir2, ir3], concat_axis=1, mode='concat')
+    ir_merge = merge([ir1, ir2, ir3], concat_axis=channel_axis, mode='concat')
 
     ir_conv = Convolution2D(256, 1, 1, activation='linear', border_mode='same')(ir_merge)
     if scale_residual: ir_conv = Lambda(lambda x: x * 0.1)(ir_conv)
@@ -59,7 +66,7 @@ def inception_resnet_B(input, scale_residual=True):
     ir2 = Convolution2D(128, 1, 7, activation='relu', border_mode='same')(ir2)
     ir2 = Convolution2D(128, 7, 1, activation='relu', border_mode='same')(ir2)
 
-    ir_merge = merge([ir1, ir2], mode='concat', concat_axis=1)
+    ir_merge = merge([ir1, ir2], mode='concat', concat_axis=channel_axis)
 
     ir_conv = Convolution2D(896, 1, 1, activation='linear', border_mode='same')(ir_merge)
     if scale_residual: ir_conv = Lambda(lambda x: x * 0.1)(ir_conv)
@@ -79,7 +86,7 @@ def inception_resnet_C(input, scale_residual=True):
     ir2 = Convolution2D(192, 1, 3, activation='relu', border_mode='same')(ir2)
     ir2 = Convolution2D(192, 3, 1, activation='relu', border_mode='same')(ir2)
 
-    ir_merge = merge([ir1, ir2], mode='concat', concat_axis=1)
+    ir_merge = merge([ir1, ir2], mode='concat', concat_axis=channel_axis)
 
     ir_conv = Convolution2D(1792, 1, 1, activation='linear', border_mode='same')(ir_merge)
     if scale_residual: ir_conv = Lambda(lambda x: x * 0.1)(ir_conv)
@@ -98,7 +105,7 @@ def reduction_A(input, k=192, l=224, m=256, n=384):
     r3 = Convolution2D(l, 3, 3, activation='relu', border_mode='same')(r3)
     r3 = Convolution2D(m, 3, 3, activation='relu', subsample=(2,2))(r3)
 
-    m = merge([r1, r2, r3], mode='concat', concat_axis=1)
+    m = merge([r1, r2, r3], mode='concat', concat_axis=channel_axis)
     m = BatchNormalization(axis=1)(m)
     m = Activation('relu')(m)
     return m
@@ -117,7 +124,7 @@ def reduction_resnet_B(input):
     r4 = Convolution2D(256, 3, 3, activation='relu', border_mode='same')(r4)
     r4 = Convolution2D(256, 3, 3, activation='relu', subsample=(2, 2))(r4)
 
-    m = merge([r1, r2, r3, r4], concat_axis=1, mode='concat')
+    m = merge([r1, r2, r3, r4], concat_axis=channel_axis, mode='concat')
     m = BatchNormalization(axis=1)(m)
     m = Activation('relu')(m)
     return m
