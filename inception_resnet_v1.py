@@ -1,8 +1,12 @@
-from keras.layers import merge, Dropout, Dense, Lambda, Flatten, Activation
+from keras.layers import Input, merge, Dropout, Dense, Lambda, Flatten, Activation
 from keras.layers.normalization import BatchNormalization
 from keras.layers.convolutional import MaxPooling2D, Convolution2D, AveragePooling2D
+from keras.models import Model
 
 from keras import backend as K
+
+import warnings
+warnings.filterwarnings('ignore')
 
 """
 Implementation of Inception-Residual Network v1 [Inception Network v4 Paper](http://arxiv.org/pdf/1602.07261v1.pdf) in Keras.
@@ -14,13 +18,13 @@ Some additional details:
     Simply setting 'scale=True' in the create_inception_resnet_v1() method will add scaling.
 """
 
-if K.image_dim_ordering() == "th":
-    channel_axis = 1
-else:
-    channel_axis = -1
-
 
 def inception_resnet_stem(input):
+    if K.image_dim_ordering() == "th":
+        channel_axis = 1
+    else:
+        channel_axis = -1
+
     # Input Shape is 299 x 299 x 3 (tf) or 3 x 299 x 299 (th)
     c = Convolution2D(32, 3, 3, activation='relu', subsample=(2, 2))(input)
     c = Convolution2D(32, 3, 3, activation='relu', )(c)
@@ -29,11 +33,16 @@ def inception_resnet_stem(input):
     c = Convolution2D(80, 1, 1, activation='relu', border_mode='same')(c)
     c = Convolution2D(192, 3, 3, activation='relu')(c)
     c = Convolution2D(256, 3, 3, activation='relu', subsample=(2,2), border_mode='same')(c)
-    b = BatchNormalization(axis=1)(c)
+    b = BatchNormalization(axis=channel_axis)(c)
     b = Activation('relu')(b)
     return b
 
 def inception_resnet_A(input, scale_residual=True):
+    if K.image_dim_ordering() == "th":
+        channel_axis = 1
+    else:
+        channel_axis = -1
+
     # Input is relu activation
     init = input
 
@@ -52,11 +61,16 @@ def inception_resnet_A(input, scale_residual=True):
     if scale_residual: ir_conv = Lambda(lambda x: x * 0.1)(ir_conv)
 
     out = merge([init, ir_conv], mode='sum')
-    out = BatchNormalization(axis=1)(out)
+    out = BatchNormalization(axis=channel_axis)(out)
     out = Activation("relu")(out)
     return out
 
 def inception_resnet_B(input, scale_residual=True):
+    if K.image_dim_ordering() == "th":
+        channel_axis = 1
+    else:
+        channel_axis = -1
+
     # Input is relu activation
     init = input
 
@@ -72,11 +86,16 @@ def inception_resnet_B(input, scale_residual=True):
     if scale_residual: ir_conv = Lambda(lambda x: x * 0.1)(ir_conv)
 
     out = merge([init, ir_conv], mode='sum')
-    out = BatchNormalization(axis=1)(out)
+    out = BatchNormalization(axis=channel_axis)(out)
     out = Activation("relu")(out)
     return out
 
 def inception_resnet_C(input, scale_residual=True):
+    if K.image_dim_ordering() == "th":
+        channel_axis = 1
+    else:
+        channel_axis = -1
+
     # Input is relu activation
     init = input
 
@@ -92,11 +111,16 @@ def inception_resnet_C(input, scale_residual=True):
     if scale_residual: ir_conv = Lambda(lambda x: x * 0.1)(ir_conv)
 
     out = merge([init, ir_conv], mode='sum')
-    out = BatchNormalization(axis=1)(out)
+    out = BatchNormalization(axis=channel_axis)(out)
     out = Activation("relu")(out)
     return out
 
 def reduction_A(input, k=192, l=224, m=256, n=384):
+    if K.image_dim_ordering() == "th":
+        channel_axis = 1
+    else:
+        channel_axis = -1
+
     r1 = MaxPooling2D((3,3), strides=(2,2))(input)
 
     r2 = Convolution2D(n, 3, 3, activation='relu', subsample=(2,2))(input)
@@ -106,12 +130,17 @@ def reduction_A(input, k=192, l=224, m=256, n=384):
     r3 = Convolution2D(m, 3, 3, activation='relu', subsample=(2,2))(r3)
 
     m = merge([r1, r2, r3], mode='concat', concat_axis=channel_axis)
-    m = BatchNormalization(axis=1)(m)
+    m = BatchNormalization(axis=channel_axis)(m)
     m = Activation('relu')(m)
     return m
 
 
 def reduction_resnet_B(input):
+    if K.image_dim_ordering() == "th":
+        channel_axis = 1
+    else:
+        channel_axis = -1
+
     r1 = MaxPooling2D((3,3), strides=(2,2), border_mode='valid')(input)
 
     r2 = Convolution2D(256, 1, 1, activation='relu', border_mode='same')(input)
@@ -125,45 +154,51 @@ def reduction_resnet_B(input):
     r4 = Convolution2D(256, 3, 3, activation='relu', subsample=(2, 2))(r4)
 
     m = merge([r1, r2, r3, r4], concat_axis=channel_axis, mode='concat')
-    m = BatchNormalization(axis=1)(m)
+    m = BatchNormalization(axis=channel_axis)(m)
     m = Activation('relu')(m)
     return m
 
-def create_inception_resnet_v1(input, nb_output=1000, scale=True):
+def create_inception_resnet_v1(nb_classes=1000, scale=True):
+    '''
+    Creates a inception resnet v1 network
+
+    :param nb_classes: number of classes
+    :param scale: flag to add scaling of activations
+    :return: Keras Model with 1 input (299x299x3) input shape and 2 outputs (final_output, auxiliary_output)
+    '''
+
+    if K.image_dim_ordering() == 'th':
+        init = Input((3, 299, 299))
+    else:
+        init = Input((299, 299, 3))
+
     # Input Shape is 299 x 299 x 3 (tf) or 3 x 299 x 299 (th)
-    x = inception_resnet_stem(input)
+    x = inception_resnet_stem(init)
 
     # 5 x Inception Resnet A
-    x = inception_resnet_A(x, scale_residual=scale)
-    x = inception_resnet_A(x, scale_residual=scale)
-    x = inception_resnet_A(x, scale_residual=scale)
-    x = inception_resnet_A(x, scale_residual=scale)
-    x = inception_resnet_A(x, scale_residual=scale)
+    for i in range(5):
+        x = inception_resnet_A(x, scale_residual=scale)
 
     # Reduction A - From Inception v4
     x = reduction_A(x, k=192, l=192, m=256, n=384)
 
     # 10 x Inception Resnet B
-    x = inception_resnet_B(x, scale_residual=scale)
-    x = inception_resnet_B(x, scale_residual=scale)
-    x = inception_resnet_B(x, scale_residual=scale)
-    x = inception_resnet_B(x, scale_residual=scale)
-    x = inception_resnet_B(x, scale_residual=scale)
-    x = inception_resnet_B(x, scale_residual=scale)
-    x = inception_resnet_B(x, scale_residual=scale)
-    x = inception_resnet_B(x, scale_residual=scale)
-    x = inception_resnet_B(x, scale_residual=scale)
-    x = inception_resnet_B(x, scale_residual=scale)
+    for i in range(10):
+        x = inception_resnet_B(x, scale_residual=scale)
+
+    # Auxiliary tower
+    aux_out = AveragePooling2D((5, 5), strides=(3, 3))(x)
+    aux_out = Convolution2D(128, 1, 1, border_mode='same', activation='relu')(aux_out)
+    aux_out = Convolution2D(768, 5, 5, activation='relu')(aux_out)
+    aux_out = Flatten()(aux_out)
+    aux_out = Dense(nb_classes, activation='softmax')(aux_out)
 
     # Reduction Resnet B
     x = reduction_resnet_B(x)
 
     # 5 x Inception Resnet C
-    x = inception_resnet_C(x, scale_residual=scale)
-    x = inception_resnet_C(x, scale_residual=scale)
-    x = inception_resnet_C(x, scale_residual=scale)
-    x = inception_resnet_C(x, scale_residual=scale)
-    x = inception_resnet_C(x, scale_residual=scale)
+    for i in range(5):
+        x = inception_resnet_C(x, scale_residual=scale)
 
     # Average Pooling
     x = AveragePooling2D((8,8))(x)
@@ -173,18 +208,15 @@ def create_inception_resnet_v1(input, nb_output=1000, scale=True):
     x = Flatten()(x)
 
     # Output
-    x = Dense(output_dim=nb_output, activation='softmax')(x)
-    return x
+    out = Dense(output_dim=nb_classes, activation='softmax')(x)
+
+    model = Model(init, output=[out, aux_out], name='Inception-Resnet-v1')
+
+    return model
 
 if __name__ == "__main__":
-    from keras.layers import Input
-    from keras.models import Model
     from keras.utils.visualize_util import plot
 
-    ip = Input(shape=(3, 299, 299))
+    inception_resnet_v1 = create_inception_resnet_v1()
 
-    inception_resnet_v1 = create_inception_resnet_v1(ip, scale=True)
-    model = Model(ip, inception_resnet_v1)
-    #.summary()
-
-    plot(model, to_file="Inception ResNet-v1.png", show_shapes=True)
+    plot(inception_resnet_v1, to_file="Inception ResNet-v1.png", show_shapes=True)
