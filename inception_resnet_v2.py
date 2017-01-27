@@ -189,11 +189,11 @@ def reduction_resnet_v2_B(input):
     m = Activation('relu')(m)
     return m
 
-def create_inception_resnet_v2(nb_classes=1000, scale=True):
+def create_inception_resnet_v2(nb_classes=1001, scale=True):
     '''
     Creates a inception resnet v2 network
 
-    :param nb_classes: number of classes
+    :param nb_classes: number of classes.txt
     :param scale: flag to add scaling of activations
     :return: Keras Model with 1 input (299x299x3) input shape and 2 outputs (final_output, auxiliary_output)
     '''

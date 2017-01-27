@@ -1,0 +1,5 @@
+Download the appropriate weight file from Release tab (https://github.com/titu1994/Inception-v4/releases/tag/v1.0)
+
+Acknowledgements : Weight for Inception V4 (Tensorflow backend, Tensorflow dim ordering) is provided by
+                   Kent Sommer (@kentsommer) in his repository - https://github.com/kentsommer/keras-inceptionV4
+
