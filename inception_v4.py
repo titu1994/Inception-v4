@@ -4,12 +4,17 @@ from keras.layers.normalization import BatchNormalization
 from keras.models import Model
 
 from keras import backend as K
+from keras.utils.data_utils import get_file
 
 """
 Implementation of Inception Network v4 [Inception Network v4 Paper](http://arxiv.org/pdf/1602.07261v1.pdf) in Keras.
 """
 
-TF_BACKEND_TF_DIM_ORDERING = "weights/inception_v4_tf_backend_tf_dim_ordering.h5"
+TH_BACKEND_TH_DIM_ORDERING = "https://github.com/titu1994/Inception-v4/releases/download/v1.2/inception_v4_weights_th_dim_ordering_th_kernels.h5"
+TH_BACKEND_TF_DIM_ORDERING = "https://github.com/titu1994/Inception-v4/releases/download/v1.2/inception_v4_weights_tf_dim_ordering_th_kernels.h5"
+TF_BACKEND_TF_DIM_ORDERING = "https://github.com/titu1994/Inception-v4/releases/download/v1.2/inception_v4_weights_tf_dim_ordering_tf_kernels.h5"
+TF_BACKEND_TH_DIM_ORDERING = "https://github.com/titu1994/Inception-v4/releases/download/v1.2/inception_v4_weights_th_dim_ordering_tf_kernels.h5"
+
 
 def conv_block(x, nb_filter, nb_row, nb_col, border_mode='same', subsample=(1, 1), bias=False):
     if K.image_dim_ordering() == "th":
@@ -214,16 +219,24 @@ def create_inception_v4(nb_classes=1001, load_weights=True):
 
     model = Model(init, out, name='Inception-v4')
 
-    model.summary()
-
     if load_weights:
-        if K.backend() == "tensorflow":
-            if K.image_dim_ordering() == "tf":
-                model.load_weights(TF_BACKEND_TF_DIM_ORDERING, by_name=True)
+        if K.backend() == "theano":
+            if K.image_dim_ordering() == "th":
+                weights = get_file('inception_v4_weights_th_dim_ordering_th_kernels.h5', TH_BACKEND_TH_DIM_ORDERING,
+                                   cache_subdir='models')
             else:
-                print("Weights for Tensorflow backend TH dim ordering not ported yet.")
+                weights = get_file('inception_v4_weights_tf_dim_ordering_th_kernels.h5', TH_BACKEND_TF_DIM_ORDERING,
+                                   cache_subdir='models')
         else:
-            print("Weights for Theano backend TH and TF dim ordering not ported yet.")
+            if K.image_dim_ordering() == "th":
+                weights = get_file('inception_v4_weights_th_dim_ordering_tf_kernels.h5', TF_BACKEND_TH_DIM_ORDERING,
+                                   cache_subdir='models')
+            else:
+                weights = get_file('inception_v4_weights_tf_dim_ordering_tf_kernels.h5', TH_BACKEND_TF_DIM_ORDERING,
+                                   cache_subdir='models')
+
+        model.load_weights(weights)
+        print("Model weights loaded.")
 
     return model
 
@@ -232,6 +245,6 @@ if __name__ == "__main__":
     # from keras.utils.visualize_util import plot
 
     inception_v4 = create_inception_v4(load_weights=True)
-    #inception_v4.summary()
+    # inception_v4.summary()
 
-    #plot(inception_v4, to_file="Inception-v4.png", show_shapes=True)
+    # plot(inception_v4, to_file="Inception-v4.png", show_shapes=True)
